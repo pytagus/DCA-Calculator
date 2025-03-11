@@ -182,36 +182,35 @@
         <div class="form-grid">
             <div class="form-group">
                 <label for="capital">Capital initial (ex : 1000) :</label>
-                <input type="number" id="capital" placeholder="Entrez votre capital initial">
+                <input type="number" id="capital" placeholder="Entrez votre capital initial" value="1000" oninput="calculerPaliers()">
             </div>
 
             <div class="form-group">
                 <label for="paliers">Nombre de paliers (ex : 7) :</label>
-                <input type="number" id="paliers" placeholder="Entrez le nombre de paliers">
+                <input type="number" id="paliers" placeholder="Entrez le nombre de paliers" value="7" oninput="calculerPaliers()">
             </div>
 
             <div class="form-group">
                 <label for="facteur">Facteur d'augmentation volume (ex : 1.11) :</label>
-                <input type="number" id="facteur" placeholder="Entrez le facteur d'augmentation" step="0.01">
+                <input type="number" id="facteur" placeholder="Entrez le facteur d'augmentation" step="0.01" value="1.11" oninput="calculerPaliers()">
             </div>
 
             <div class="form-group">
                 <label for="distance">Distance initiale entre paliers en % (ex : 1) :</label>
-                <input type="number" id="distance" placeholder="Entrez la distance initiale en %">
+                <input type="number" id="distance" placeholder="Entrez la distance initiale en %" value="1" oninput="calculerPaliers()">
             </div>
             
             <div class="form-group">
                 <label for="distanceFactor">Facteur d'augmentation de la distance (ex : 1.2) :</label>
-                <input type="number" id="distanceFactor" placeholder="Entrez le facteur d'augmentation" step="0.01" value="1">
+                <input type="number" id="distanceFactor" placeholder="Entrez le facteur d'augmentation" step="0.01" value="1.2" oninput="calculerPaliers()">
             </div>
             
             <div class="form-group">
                 <label for="takeProfit">Take Profit en % (ex : 1) :</label>
-                <input type="number" id="takeProfit" placeholder="Entrez le pourcentage de TP" step="0.1" value="1">
+                <input type="number" id="takeProfit" placeholder="Entrez le pourcentage de TP" step="0.1" value="1" oninput="calculerPaliers()">
             </div>
         </div>
 
-        <button onclick="calculerPaliers()">Calculer</button>
         <div class="result" id="result"></div>
     </div>
 
@@ -331,6 +330,9 @@
             
             document.getElementById('result').innerHTML = resultHTML;
         }
+
+        // Appel initial pour afficher les résultats avec les valeurs par défaut
+        calculerPaliers();
     </script>
 </body>
 </html>
