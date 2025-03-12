@@ -174,6 +174,12 @@
                 padding: 10px;
             }
         }
+        
+        .error-message {
+            color: red;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -182,32 +188,32 @@
         <div class="form-grid">
             <div class="form-group">
                 <label for="capital">Capital initial (ex : 1000) :</label>
-                <input type="number" id="capital" placeholder="Entrez votre capital initial" value="1000" oninput="calculerPaliers()">
+                <input type="number" id="capital" placeholder="Entrez votre capital initial" step="1" value="1000" onchange="calculerPaliers()">
             </div>
 
             <div class="form-group">
                 <label for="paliers">Nombre de paliers (ex : 7) :</label>
-                <input type="number" id="paliers" placeholder="Entrez le nombre de paliers" value="7" oninput="calculerPaliers()">
+                <input type="number" id="paliers" placeholder="Entrez le nombre de paliers" step="1" value="7" onchange="calculerPaliers()">
             </div>
 
             <div class="form-group">
-                <label for="facteur">Facteur d'augmentation volume (ex : 1.11) :</label>
-                <input type="number" id="facteur" placeholder="Entrez le facteur d'augmentation" step="0.01" value="1.11" oninput="calculerPaliers()">
+                <label for="facteur">Facteur d'augmentation volume (ex : 1.2) :</label>
+                <input type="number" id="facteur" placeholder="Entrez le facteur d'augmentation" step="0.01" value="1.2" onchange="calculerPaliers()">
             </div>
 
             <div class="form-group">
-                <label for="distance">Distance initiale entre paliers en % (ex : 1) :</label>
-                <input type="number" id="distance" placeholder="Entrez la distance initiale en %" value="1" oninput="calculerPaliers()">
+                <label for="distance">Distance initiale entre paliers en % (ex : 0.74) :</label>
+                <input type="number" id="distance" placeholder="Entrez la distance initiale en %" step="0.01" value="0.74" onchange="calculerPaliers()">
             </div>
             
             <div class="form-group">
-                <label for="distanceFactor">Facteur d'augmentation de la distance (ex : 1.2) :</label>
-                <input type="number" id="distanceFactor" placeholder="Entrez le facteur d'augmentation" step="0.01" value="1.2" oninput="calculerPaliers()">
+                <label for="distanceFactor">Facteur d'augmentation de la distance (ex : 1.1) :</label>
+                <input type="number" id="distanceFactor" placeholder="Entrez le facteur d'augmentation" step="0.01" value="1.1" onchange="calculerPaliers()">
             </div>
             
             <div class="form-group">
-                <label for="takeProfit">Take Profit en % (ex : 1) :</label>
-                <input type="number" id="takeProfit" placeholder="Entrez le pourcentage de TP" step="0.1" value="1" oninput="calculerPaliers()">
+                <label for="takeProfit">Take Profit en % (ex : 0.44) :</label>
+                <input type="number" id="takeProfit" placeholder="Entrez le pourcentage de TP" step="0.01" value="0.44" onchange="calculerPaliers()">
             </div>
         </div>
 
@@ -216,119 +222,123 @@
 
     <script>
         function calculerPaliers() {
-            const capitalTotal = parseFloat(document.getElementById('capital').value);
-            const paliers = parseInt(document.getElementById('paliers').value);
-            const facteur = parseFloat(document.getElementById('facteur').value);
-            const distanceInitiale = parseFloat(document.getElementById('distance').value);
-            const distanceFactor = parseFloat(document.getElementById('distanceFactor').value) || 1.0;
-            const takeProfit = parseFloat(document.getElementById('takeProfit').value) || 10;
+            try {
+                const capitalTotal = parseFloat(document.getElementById('capital').value);
+                const paliers = parseInt(document.getElementById('paliers').value);
+                const facteur = parseFloat(document.getElementById('facteur').value);
+                const distanceInitiale = parseFloat(document.getElementById('distance').value);
+                const distanceFactor = parseFloat(document.getElementById('distanceFactor').value) || 1.0;
+                const takeProfit = parseFloat(document.getElementById('takeProfit').value) || 10;
 
-            if (isNaN(capitalTotal) || isNaN(paliers) || isNaN(facteur) || isNaN(distanceInitiale)) {
-                alert('Veuillez entrer des valeurs valides.');
-                return;
-            }
+                if (isNaN(capitalTotal) || isNaN(paliers) || isNaN(facteur) || isNaN(distanceInitiale)) {
+                    document.getElementById('result').innerHTML = '<div class="error-message">Veuillez entrer des valeurs valides.</div>';
+                    return;
+                }
 
-            let diviseur = 1;
-            for (let i = 0; i < paliers; i++) {
-                diviseur += Math.pow(facteur, i + 1);
-            }
+                let diviseur = 1;
+                for (let i = 0; i < paliers; i++) {
+                    diviseur += Math.pow(facteur, i + 1);
+                }
 
-            let montantInitial = capitalTotal / diviseur;
-            let resultHTML = '';
-            
-            // Valeurs initiales
-            let sommeTotal = montantInitial;
-            let volumeCumulatif = montantInitial / 1; // Prix initial = 100%
-            let prixInitial = 100; // 100%
-            
-            // Affichage du montant initial
-            resultHTML += `
-            <div class="palier-card">
-                <div class="palier-header">Montant initial</div>
-                <div class="palier-info">
-                    <div class="info-item">
-                        <span class="info-label">Montant:</span>
-                        <span class="info-value">${montantInitial.toFixed(2)} $</span>
-                    </div>
-                </div>
-            </div>`;
-            
-            let montantCourant = montantInitial;
-            let distanceCumulative = 0;
-
-            for (let i = 1; i <= paliers; i++) {
-                montantCourant *= facteur;
-                sommeTotal += montantCourant;
+                let montantInitial = capitalTotal / diviseur;
+                let resultHTML = '';
                 
-                // Calcul de la distance progressive entre les paliers
-                const distanceActuelle = distanceInitiale * Math.pow(distanceFactor, i - 1);
-                distanceCumulative += distanceActuelle;
+                // Valeurs initiales
+                let sommeTotal = montantInitial;
+                let volumeCumulatif = montantInitial / 1; // Prix initial = 100%
+                let prixInitial = 100; // 100%
                 
-                // Prix actuel (en pourcentage du prix initial)
-                const prixActuel = 100 - distanceCumulative;
-                
-                // Volume d'achat à ce palier (montant / prix relatif)
-                const volumeActuel = montantCourant / (prixActuel / 100);
-                volumeCumulatif += volumeActuel;
-                
-                // Calcul du prix moyen (somme totale / volume total)
-                const prixMoyen = (sommeTotal / volumeCumulatif) * 100;
-                
-                // Profit réalisé si vente au prix actuel
-                const profitActuel = ((prixActuel / prixMoyen) - 1) * 100;
-                
-                // Calcul du pourcentage de hausse nécessaire depuis le prix actuel pour atteindre le TP
-                // Exemple: si prix moyen = 95% et prix actuel = 90%, pour un TP de 10% sur le prix moyen
-                // il faut monter à 95% * 1.1 = 104.5%, soit une hausse de (104.5 - 90) / 90 * 100 = 16.11% depuis le prix actuel
-                const prixTPCible = prixMoyen * (1 + takeProfit / 100);
-                const haussePourTP = ((prixTPCible - prixActuel) / prixActuel) * 100;
-                
+                // Affichage du montant initial
                 resultHTML += `
                 <div class="palier-card">
-                    <div class="palier-header">Palier ${i} (-${distanceCumulative.toFixed(2)}%)</div>
+                    <div class="palier-header">Montant initial</div>
                     <div class="palier-info">
                         <div class="info-item">
                             <span class="info-label">Montant:</span>
-                            <span class="info-value">${montantCourant.toFixed(2)} $</span>
-                        </div>
-
-                        <div class="info-item">
-                            <span class="info-label">Hausse pour TP:</span>
-                            <span class="info-value" style="color: #4d90fe;">+${haussePourTP.toFixed(2)}%</span>
+                            <span class="info-value">${montantInitial.toFixed(2)} $</span>
                         </div>
                     </div>
                 </div>`;
+                
+                let montantCourant = montantInitial;
+                let distanceCumulative = 0;
+
+                for (let i = 1; i <= paliers; i++) {
+                    montantCourant *= facteur;
+                    sommeTotal += montantCourant;
+                    
+                    // Calcul de la distance progressive entre les paliers
+                    const distanceActuelle = distanceInitiale * Math.pow(distanceFactor, i - 1);
+                    distanceCumulative += distanceActuelle;
+                    
+                    // Prix actuel (en pourcentage du prix initial)
+                    const prixActuel = 100 - distanceCumulative;
+                    
+                    // Volume d'achat à ce palier (montant / prix relatif)
+                    const volumeActuel = montantCourant / (prixActuel / 100);
+                    volumeCumulatif += volumeActuel;
+                    
+                    // Calcul du prix moyen (somme totale / volume total)
+                    const prixMoyen = (sommeTotal / volumeCumulatif) * 100;
+                    
+                    // Profit réalisé si vente au prix actuel
+                    const profitActuel = ((prixActuel / prixMoyen) - 1) * 100;
+                    
+                    // Calcul du pourcentage de hausse nécessaire depuis le prix actuel pour atteindre le TP
+                    // Exemple: si prix moyen = 95% et prix actuel = 90%, pour un TP de 10% sur le prix moyen
+                    // il faut monter à 95% * 1.1 = 104.5%, soit une hausse de (104.5 - 90) / 90 * 100 = 16.11% depuis le prix actuel
+                    const prixTPCible = prixMoyen * (1 + takeProfit / 100);
+                    const haussePourTP = ((prixTPCible - prixActuel) / prixActuel) * 100;
+                    
+                    resultHTML += `
+                    <div class="palier-card">
+                        <div class="palier-header">Palier ${i} (-${distanceCumulative.toFixed(2)}%)</div>
+                        <div class="palier-info">
+                            <div class="info-item">
+                                <span class="info-label">Montant:</span>
+                                <span class="info-value">${montantCourant.toFixed(2)} $</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Hausse pour TP:</span>
+                                <span class="info-value" style="color: #4d90fe;">+${haussePourTP.toFixed(2)}%</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+
+                // Calcul du prix moyen final
+                const prixMoyenFinal = (sommeTotal / volumeCumulatif) * 100;
+                
+                // Calcul du profit global
+                const prixFinal = 100 - distanceCumulative; // Prix actuel au dernier palier
+                const profitGlobal = ((prixFinal / prixMoyenFinal) - 1) * 100;
+                
+                // Calcul du pourcentage de hausse nécessaire depuis le prix final pour atteindre le TP global
+                const prixTPCibleFinal = prixMoyenFinal * (1 + takeProfit / 100);
+                const haussePourTPFinal = ((prixTPCibleFinal - prixFinal) / prixFinal) * 100;
+                
+                // Résumé final
+                resultHTML += `
+                <div class="summary-card">
+                    <div class="summary-title">Résumé final</div>
+                    <div class="palier-info">
+                        <div class="info-item">
+                            <span class="info-label">Capital total:</span>
+                            <span class="info-value">${sommeTotal.toFixed(2)} $</span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Hausse pour TP global:</span>
+                            <span class="info-value" style="color: #4d90fe;">+${haussePourTPFinal.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>`;
+                
+                document.getElementById('result').innerHTML = resultHTML;
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<div class="error-message">Erreur lors du calcul.</div>';
             }
-
-            // Calcul du prix moyen final
-            const prixMoyenFinal = (sommeTotal / volumeCumulatif) * 100;
-            
-            // Calcul du profit global
-            const prixFinal = 100 - distanceCumulative; // Prix actuel au dernier palier
-            const profitGlobal = ((prixFinal / prixMoyenFinal) - 1) * 100;
-            
-            // Calcul du pourcentage de hausse nécessaire depuis le prix final pour atteindre le TP global
-            const prixTPCibleFinal = prixMoyenFinal * (1 + takeProfit / 100);
-            const haussePourTPFinal = ((prixTPCibleFinal - prixFinal) / prixFinal) * 100;
-            
-            // Résumé final
-            resultHTML += `
-            <div class="summary-card">
-                <div class="summary-title">Résumé final</div>
-                <div class="palier-info">
-                    <div class="info-item">
-                        <span class="info-label">Capital total:</span>
-                        <span class="info-value">${sommeTotal.toFixed(2)} $</span>
-                    </div>
-
-                    <div class="info-item">
-                        <span class="info-label">Hausse pour TP global:</span>
-                        <span class="info-value" style="color: #4d90fe;">+${haussePourTPFinal.toFixed(2)}%</span>
-                    </div>
-                </div>
-            </div>`;
-            
-            document.getElementById('result').innerHTML = resultHTML;
         }
 
         // Appel initial pour afficher les résultats avec les valeurs par défaut
